@@ -82,6 +82,10 @@ class GitHubCollector:
         return result.stdout.strip()
 
     def _run_gh(self, args: list) -> str:
+        # Add --repo flag if we have a repo name
+        if self.repo_name and self.repo_name != "Unknown Repo":
+            args = args + ["--repo", self.repo_name]
+
         result = subprocess.run(
             ["gh"] + args,
             cwd=self.repo_path,
