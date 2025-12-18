@@ -33,16 +33,21 @@ BUILTIN_TRACKS = {
 class MusicManager:
     """Manage background music for wrapped videos."""
 
+    # Built-in tracks from Pixabay (royalty-free, no attribution required)
+    BUILTIN_MUSIC_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "assets", "music")
+
     def __init__(self):
         Config.ensure_dirs()
-        self.music_dir = os.path.join(Config.OUTPUT_DIR, "music")
-        os.makedirs(self.music_dir, exist_ok=True)
+        self.music_dir = self.BUILTIN_MUSIC_DIR
+        # Also check user's custom music dir
+        self.custom_music_dir = os.path.join(Config.OUTPUT_DIR, "music")
+        os.makedirs(self.custom_music_dir, exist_ok=True)
 
     def list_available_tracks(self) -> List[Dict]:
         """List available music tracks."""
         tracks = []
 
-        # Check for local files in music directory
+        # Check builtin music directory
         if os.path.exists(self.music_dir):
             for f in os.listdir(self.music_dir):
                 if f.endswith(('.mp3', '.wav', '.m4a', '.ogg')):
@@ -50,23 +55,36 @@ class MusicManager:
                         "id": f,
                         "name": os.path.splitext(f)[0],
                         "path": os.path.join(self.music_dir, f),
-                        "source": "local",
+                        "source": "builtin (Pixabay)",
+                    })
+
+        # Check custom music directory
+        if os.path.exists(self.custom_music_dir):
+            for f in os.listdir(self.custom_music_dir):
+                if f.endswith(('.mp3', '.wav', '.m4a', '.ogg')):
+                    tracks.append({
+                        "id": f,
+                        "name": os.path.splitext(f)[0],
+                        "path": os.path.join(self.custom_music_dir, f),
+                        "source": "custom",
                     })
 
         return tracks
 
     def get_track_path(self, track_id: str) -> Optional[str]:
         """Get the local path for a track."""
-        # Check if it's a local file
-        local_path = os.path.join(self.music_dir, track_id)
-        if os.path.exists(local_path):
-            return local_path
+        # Check both directories
+        for music_dir in [self.music_dir, self.custom_music_dir]:
+            # Direct path
+            local_path = os.path.join(music_dir, track_id)
+            if os.path.exists(local_path):
+                return local_path
 
-        # Check with common extensions
-        for ext in ['.mp3', '.wav', '.m4a', '.ogg']:
-            path = os.path.join(self.music_dir, f"{track_id}{ext}")
-            if os.path.exists(path):
-                return path
+            # Check with common extensions
+            for ext in ['.mp3', '.wav', '.m4a', '.ogg']:
+                path = os.path.join(music_dir, f"{track_id}{ext}")
+                if os.path.exists(path):
+                    return path
 
         return None
 

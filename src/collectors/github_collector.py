@@ -86,12 +86,32 @@ class GitHubCollector:
         if self.repo_name and self.repo_name != "Unknown Repo":
             args = args + ["--repo", self.repo_name]
 
+        # Get GH token from gh auth
+        import os
+        env = os.environ.copy()
+
+        # Try to get token from gh auth if not already set
+        if "GH_TOKEN" not in env:
+            try:
+                token_result = subprocess.run(
+                    ["gh", "auth", "token"],
+                    capture_output=True,
+                    text=True,
+                )
+                if token_result.returncode == 0 and token_result.stdout.strip():
+                    env["GH_TOKEN"] = token_result.stdout.strip()
+            except Exception:
+                pass
+
         result = subprocess.run(
             ["gh"] + args,
             cwd=self.repo_path,
             capture_output=True,
             text=True,
+            env=env,
         )
+        if result.returncode != 0 and result.stderr:
+            print(f"    gh error: {result.stderr.strip()}")
         return result.stdout.strip()
 
     def collect(self) -> RepoStats:
@@ -240,6 +260,7 @@ class GitHubCollector:
         return added, deleted
 
     def _get_pr_stats(self) -> tuple:
+        # First try gh CLI
         try:
             output = self._run_gh(
                 [
@@ -251,21 +272,49 @@ class GitHubCollector:
             )
             if output:
                 prs = json.loads(output)
-                total = len(prs)
+                if prs:  # Only use if we got results
+                    total = len(prs)
+                    sorted_prs = sorted(prs, key=lambda x: x.get("additions", 0) + x.get("deletions", 0), reverse=True)
+                    biggest = []
+                    for pr in sorted_prs[:5]:
+                        biggest.append({
+                            "number": pr.get("number"),
+                            "title": pr.get("title"),
+                            "lines": pr.get("additions", 0) + pr.get("deletions", 0),
+                            "author": pr.get("author", {}).get("login", "unknown"),
+                        })
+                    return total, biggest
+        except Exception as e:
+            pass
 
-                # Sort by size and get top 5
-                sorted_prs = sorted(prs, key=lambda x: x.get("additions", 0) + x.get("deletions", 0), reverse=True)
+        # Fallback: count PR merges from git log
+        try:
+            output = self._run_git(
+                ["log", "--oneline", "--merges", f"--after={self.year}-01-01", "--grep=Merge pull request"]
+            )
+            if output:
+                pr_lines = [l for l in output.splitlines() if "Merge pull request" in l]
+                total = len(pr_lines)
+
+                # Extract PR numbers and titles
                 biggest = []
-                for pr in sorted_prs[:5]:
-                    biggest.append({
-                        "number": pr.get("number"),
-                        "title": pr.get("title"),
-                        "lines": pr.get("additions", 0) + pr.get("deletions", 0),
-                        "author": pr.get("author", {}).get("login", "unknown"),
-                    })
+                for line in pr_lines[:5]:
+                    match = re.search(r"#(\d+)", line)
+                    if match:
+                        pr_num = match.group(1)
+                        # Get title from the line after "from"
+                        title_match = re.search(r"from \S+/(.+)$", line)
+                        title = title_match.group(1) if title_match else "PR #" + pr_num
+                        biggest.append({
+                            "number": int(pr_num),
+                            "title": title,
+                            "lines": 0,
+                            "author": "unknown",
+                        })
                 return total, biggest
         except Exception as e:
             print(f"  Warning: Could not fetch PR data: {e}")
+
         return 0, []
 
     def _get_releases(self) -> tuple:

@@ -229,7 +229,7 @@ class AnimatedVideoGenerator:
             progress = min(t / 1.5, 1.0)
             eased = self._ease_out_cubic(progress)
 
-            year_size = int(120 + 80 * eased)
+            year_size = int(160 + 100 * eased)
 
             try:
                 font = ImageFont.truetype(self.font_path, year_size) if self.font_path else ImageFont.load_default()
@@ -239,7 +239,7 @@ class AnimatedVideoGenerator:
             year_text = str(self.stats.year)
             bbox = draw.textbbox((0, 0), year_text, font=font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            y = center_y - 200 + int(50 * (1 - eased))  # Centered vertically
+            y = center_y - 250 + int(50 * (1 - eased))  # Centered vertically
 
             draw.text((x, y), year_text, font=font, fill=self._hex_to_rgb(self.primary_color))
 
@@ -249,13 +249,13 @@ class AnimatedVideoGenerator:
                 name_eased = self._ease_out_cubic(name_progress)
 
                 try:
-                    name_font = ImageFont.truetype(self.font_path, 64) if self.font_path else ImageFont.load_default()
+                    name_font = ImageFont.truetype(self.font_path, 85) if self.font_path else ImageFont.load_default()
                 except:
                     name_font = ImageFont.load_default()
 
                 bbox = draw.textbbox((0, 0), repo_name.upper(), font=name_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                y = center_y + 50
+                y = center_y + 80
 
                 y_offset = int(30 * (1 - name_eased))
                 draw.text((x, y + y_offset), repo_name.upper(), font=name_font, fill=self._hex_to_rgb(self.text_color))
@@ -266,13 +266,13 @@ class AnimatedVideoGenerator:
                 wrapped_eased = self._ease_out_cubic(wrapped_progress)
 
                 try:
-                    wrapped_font = ImageFont.truetype(self.font_path, 50) if self.font_path else ImageFont.load_default()
+                    wrapped_font = ImageFont.truetype(self.font_path, 70) if self.font_path else ImageFont.load_default()
                 except:
                     wrapped_font = ImageFont.load_default()
 
                 bbox = draw.textbbox((0, 0), "WRAPPED", font=wrapped_font)
                 x = (self.width - (bbox[2] - bbox[0])) // 2
-                y = center_y + 140 + int(20 * (1 - wrapped_eased))
+                y = center_y + 190 + int(20 * (1 - wrapped_eased))
                 draw.text((x, y), "WRAPPED", font=wrapped_font, fill=self._hex_to_rgb(self.secondary_color))
 
             return np.array(img)
@@ -300,16 +300,16 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 38) if self.font_path else ImageFont.load_default()
-                number_font = ImageFont.truetype(self.font_path, 140) if self.font_path else ImageFont.load_default()
-                sub_font = ImageFont.truetype(self.font_path, 36) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                number_font = ImageFont.truetype(self.font_path, 180) if self.font_path else ImageFont.load_default()
+                sub_font = ImageFont.truetype(self.font_path, 48) if self.font_path else ImageFont.load_default()
             except:
                 title_font = number_font = sub_font = ImageFont.load_default()
 
             # Title - centered above number
             bbox = draw.textbbox((0, 0), title, font=title_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, center_y - 200), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
+            draw.text((x, center_y - 280), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
 
             # Animated number count-up
             if t > 0.3:
@@ -356,9 +356,9 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 38) if self.font_path else ImageFont.load_default()
-                name_font = ImageFont.truetype(self.font_path, 40) if self.font_path else ImageFont.load_default()
-                count_font = ImageFont.truetype(self.font_path, 32) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                name_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                count_font = ImageFont.truetype(self.font_path, 44) if self.font_path else ImageFont.load_default()
             except:
                 title_font = name_font = count_font = ImageFont.load_default()
 
@@ -366,7 +366,7 @@ class AnimatedVideoGenerator:
             title = "TOP CONTRIBUTORS"
             bbox = draw.textbbox((0, 0), title, font=title_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, center_y - 350), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
+            draw.text((x, center_y - 420), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
 
             # Reveal each contributor one by one - centered
             medals = ["1st", "2nd", "3rd", "4th", "5th"]
@@ -415,9 +415,9 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 36) if self.font_path else ImageFont.load_default()
-                label_font = ImageFont.truetype(self.font_path, 28) if self.font_path else ImageFont.load_default()
-                value_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                label_font = ImageFont.truetype(self.font_path, 38) if self.font_path else ImageFont.load_default()
+                value_font = ImageFont.truetype(self.font_path, 68) if self.font_path else ImageFont.load_default()
             except:
                 title_font = label_font = value_font = ImageFont.load_default()
 
@@ -425,7 +425,7 @@ class AnimatedVideoGenerator:
             title = "WHEN YOU CODED"
             bbox = draw.textbbox((0, 0), title, font=title_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, center_y - 400), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
+            draw.text((x, center_y - 480), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
 
             items = [
                 ("Busiest Day", self.stats.busiest_day.upper(), 0.5),
@@ -476,9 +476,9 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 36) if self.font_path else ImageFont.load_default()
-                number_font = ImageFont.truetype(self.font_path, 60) if self.font_path else ImageFont.load_default()
-                label_font = ImageFont.truetype(self.font_path, 28) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                number_font = ImageFont.truetype(self.font_path, 80) if self.font_path else ImageFont.load_default()
+                label_font = ImageFont.truetype(self.font_path, 38) if self.font_path else ImageFont.load_default()
             except:
                 title_font = number_font = label_font = ImageFont.load_default()
 
@@ -486,7 +486,7 @@ class AnimatedVideoGenerator:
             title = "LINES OF CODE"
             bbox = draw.textbbox((0, 0), title, font=title_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, center_y - 350), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
+            draw.text((x, center_y - 420), title, font=title_font, fill=self._hex_to_rgb(self.secondary_color))
 
             # Added - green, count up
             if t > 0.5:
@@ -559,9 +559,9 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 36) if self.font_path else ImageFont.load_default()
-                label_font = ImageFont.truetype(self.font_path, 22) if self.font_path else ImageFont.load_default()
-                value_font = ImageFont.truetype(self.font_path, 18) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 52) if self.font_path else ImageFont.load_default()
+                label_font = ImageFont.truetype(self.font_path, 28) if self.font_path else ImageFont.load_default()
+                value_font = ImageFont.truetype(self.font_path, 24) if self.font_path else ImageFont.load_default()
             except:
                 title_font = label_font = value_font = ImageFont.load_default()
 
@@ -569,7 +569,7 @@ class AnimatedVideoGenerator:
             title = "COMMITS BY MONTH"
             bbox = draw.textbbox((0, 0), title, font=title_font)
             x = (self.width - (bbox[2] - bbox[0])) // 2
-            draw.text((x, center_y - 500), title, font=title_font, fill=self._hex_to_rgb(self.text_color))
+            draw.text((x, center_y - 520), title, font=title_font, fill=self._hex_to_rgb(self.text_color))
 
             # Chart area - centered
             chart_width = self.width - 160
@@ -629,10 +629,10 @@ class AnimatedVideoGenerator:
             draw = ImageDraw.Draw(img)
 
             try:
-                title_font = ImageFont.truetype(self.font_path, 56) if self.font_path else ImageFont.load_default()
-                year_font = ImageFont.truetype(self.font_path, 130) if self.font_path else ImageFont.load_default()
-                stat_font = ImageFont.truetype(self.font_path, 38) if self.font_path else ImageFont.load_default()
-                footer_font = ImageFont.truetype(self.font_path, 32) if self.font_path else ImageFont.load_default()
+                title_font = ImageFont.truetype(self.font_path, 72) if self.font_path else ImageFont.load_default()
+                year_font = ImageFont.truetype(self.font_path, 160) if self.font_path else ImageFont.load_default()
+                stat_font = ImageFont.truetype(self.font_path, 50) if self.font_path else ImageFont.load_default()
+                footer_font = ImageFont.truetype(self.font_path, 42) if self.font_path else ImageFont.load_default()
             except:
                 title_font = year_font = stat_font = footer_font = ImageFont.load_default()
 
